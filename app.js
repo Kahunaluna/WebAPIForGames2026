@@ -1,8 +1,28 @@
 const express = require("express");
 const path = require("path");
+require("dotenv").config();
+const mongoose = require("mongoose");
 const fs = require('fs');
+//const { default: mongoose } = require("mongoose");
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+const MONGO_URI = process.env.MONGO_URI;
+
+//Quick test that env variables are available
+if(!MONGO_URI){
+    console.error("Missing Database Connection");
+    process.exit(1);
+}
+
+async function connectToMongo(){
+    try {
+        await mongoose.connect(MONGO_URI);
+        console.log("Connected to Database");
+    } catch(error){
+        console.error("MongoDB connection error: ", error.message);
+        process.exit(1);
+    }
+}
 
 //Set up a static folder for files
 app.use(express.static(path.join(__dirname,"public")));
@@ -75,7 +95,25 @@ app.post("/leaderboard", (req,res)=>{
     res.status(201).json({ok:true, leaderboard});
 });
 
-//Command that starts the server
-app.listen(PORT, ()=>{
-    console.log(`Server is running on ${PORT}`);
+//Requests using MongoDB Database and Mongoose(middleware)
+const gameSchema = new mongoose.Schema({},{strict:false});
+const VideoGameData = mongoose.model("gameprofiles", gameSchema);
+
+app.get("/api/gamesprofile/:game", async(req,res)=>{
+    const game = req.params.game;
+    const gameentry = await VideoGameData.findOne({game});
+    console.log(gameentry);
+    res.json(gameentry);
 });
+
+//Command that starts the server
+//app.listen(PORT, ()=>{
+//    console.log(`Server is running on ${PORT}`);
+//});
+
+//Connection with Database and Server
+connectToMongo().then(()=>{    
+    app.listen(PORT, ()=>{
+     console.log(`Server is running on ${PORT}`);
+});
+})
