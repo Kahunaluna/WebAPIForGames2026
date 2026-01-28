@@ -10,6 +10,8 @@ const MONGO_URI = process.env.MONGO_URI;
 
 //Location of Routes
 const highScoreRoutes = require("./routes/highscores");
+const authRoutes = require("./routes/auth");
+app.use("/api/auth", authRoutes);
 
 //Quick test that env variables are available
 if(!MONGO_URI){

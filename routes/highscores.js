@@ -62,4 +62,43 @@ router.get("/:id", async (req,res)=>{
 
 //next week need to add put route for editing scores
 
+router.put("/:id", async (req,res)=>{
+    try{
+        //Update highscore entry
+        const {id} = req.params;
+
+        //Only allow expected fields to be updated
+        const payload = {};
+        if(typeof req.body.playername === "string")
+        {
+            payload.playername = req.body.playername;
+        }
+
+        if(typeof req.body.score === "number")
+        {
+            payload.score = req.body.score;
+        }
+
+        if(typeof req.body.level === "number")
+        {
+            payload.level = req.body.level;
+        }
+
+        const updateEntry = await HighScore.findByIdAndUpdate(id, payload, {
+            new:true, 
+            runValidators:true});
+
+            if(!updateEntry)
+            {
+                return res.status(404).json({ok:false, error:"Score Entry Not Found"});
+            }
+            res.json({ok:true, updateEntry});
+            //res.redirect("api/highscores");
+    }
+    catch(err)
+    {
+       res.status(400).json({ok:false, error:"Update Failed"});
+    }
+});
+
 module.exports = router;
