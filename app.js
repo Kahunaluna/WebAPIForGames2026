@@ -11,7 +11,14 @@ const MONGO_URI = process.env.MONGO_URI;
 //Location of Routes
 const highScoreRoutes = require("./routes/highscores");
 const authRoutes = require("./routes/auth");
+
+//Set up a static folder for files
+app.use(express.static(path.join(__dirname,"public")));
+app.use(express.urlencoded({extended:false}));
+app.use(express.json());
+
 app.use("/api/auth", authRoutes);
+app.use("/api/highscores",highScoreRoutes);
 
 //Quick test that env variables are available
 if(!MONGO_URI){
@@ -28,10 +35,6 @@ async function connectToMongo(){
         process.exit(1);
     }
 }
-
-//Set up a static folder for files
-app.use(express.static(path.join(__dirname,"public")));
-app.use(express.json());
 
 //Define a route; ()=> is an anonymous function
 
@@ -110,16 +113,6 @@ app.get("/api/gamesprofile/:game", async(req,res)=>{
     console.log(gameentry);
     res.json(gameentry);
 });
-
-//Connecting with a router module - Week 3 classwork
-app.use("/api/highscores", highScoreRoutes);
-
-//Command that starts the server
-//app.listen(PORT, ()=>{
-//    console.log(`Server is running on ${PORT}`);
-//});
-
-
 
 //Connection with Database and Server
 connectToMongo().then(()=>{    

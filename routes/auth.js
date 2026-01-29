@@ -23,13 +23,47 @@ router.post("/register", async (req,res)=>{
 
         const passwordHash = await bcrypt.hash(password, 10);
 
-        await User.create({username, passwordHash});
+        await User.create({username, password:passwordHash});
 
         res.status(201).json({ok:true});
         console.log(`${username}: ${passwordHash}`);
     }catch(err){
+        console.log("Register Error:", err);
         res.status(500).json({ok:false, error:"Failed to register user"});
     }
+});
+
+//Login existing users
+router.post("/login", async (req,res)=>{
+    try{
+        const {username, password} = req.body;
+
+        const user = await User.findOne({username});
+        if(!user){
+            return res.status(401).json({ok:false, error:"Invalid username or password"});
+        }
+
+        const ok = await bcrypt.compare(password, user.password);
+        
+        if(!ok){
+            return res.status(401).json({ok:false, error:"Password does not match"});
+        }
+
+        const token = jwt.sign(
+            {sub:user._id.toString(),
+             username:user.username},
+            JWT_Secret,
+            {expiresIn:"2h"}
+        );
+
+        res.json({ok:true, token});
+
+    }
+    catch(err){
+        console.log("Login Error:", err);
+        res.status(500).json({ok:false, error:"Failed to login"});
+    }
+
 });
 
 module.exports = router;

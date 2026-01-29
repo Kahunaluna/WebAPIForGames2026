@@ -1,14 +1,20 @@
 const express = require("express");
 const HighScore = require("../models/HighScore");
+const requireAuth = require("../Middleware/requireAuth");
 
 const router = express.Router();
+
+//All routes below will require authentication
+router.use(requireAuth);
 
 //Post route for adding player scores
 router.post("/", async (req, res)=>{
     try{
+
+        const userId = req.user.sub;
         const {playername, score, level} = req.body;
 
-        const createdScore = await HighScore.create({playername, score, level});
+        const createdScore = await HighScore.create({userId, playername, score, level});
 
         res.status(201).json({ok:true, createdScore});
 
@@ -20,7 +26,8 @@ router.post("/", async (req, res)=>{
 //Get route for requesting data from database
 router.get("/highscores", async (req, res)=>{
     try{
-        const scores = await HighScore.find()
+        const userId = req.user.sub;
+        const scores = await HighScore.find({userId})
         .sort({score:-1, createdAt:1})
         .limit(10);
         res.json(scores);
@@ -32,8 +39,9 @@ router.get("/highscores", async (req, res)=>{
 //Delete route(deletes by ID)
 router.delete("/:id", async (req,res)=>{
     try{
+        const userId = req.user.sub;
         const{id} = req.params;
-        const deleted = await HighScore.findByIdAndDelete(id);
+        const deleted = await HighScore.findOneAndDelete({_id: id, userId});
 
         if(!deleted){
             return res.status(404).json({ok:false, error:"Score not found!"})
@@ -49,7 +57,7 @@ router.delete("/:id", async (req,res)=>{
 //get route for edit page
 router.get("/:id", async (req,res)=>{
     try {
-        const score = await HighScore.findById(req.params.id);
+        const score = await HighScore.findById({_id: req.params.id, userId});
 
         if(!score){
             return res.status(404).json({ok:false, error:"Score not found"});
@@ -64,6 +72,7 @@ router.get("/:id", async (req,res)=>{
 
 router.put("/:id", async (req,res)=>{
     try{
+        const userId = req.user.sub;
         //Update highscore entry
         const {id} = req.params;
 
@@ -84,7 +93,7 @@ router.put("/:id", async (req,res)=>{
             payload.level = req.body.level;
         }
 
-        const updateEntry = await HighScore.findByIdAndUpdate(id, payload, {
+        const updateEntry = await HighScore.findByIdAndUpdate({_id: id, userId}, payload, {
             new:true, 
             runValidators:true});
 
