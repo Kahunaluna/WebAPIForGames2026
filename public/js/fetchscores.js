@@ -74,17 +74,26 @@ form.addEventListener("submit", async (e)=>{
     e.preventDefault();
 
     const playername = document.getElementById("playername").value;
-    const score = document.getElementById("score").value;
-    const level = document.getElementById("level").value;
+    const score = parseInt(document.getElementById("score").value);
+    const level = parseInt(document.getElementById("level").value);
 
     statusDisplay.textContent = "Submitting new score...";
 
     try{
-        await fetch("/api/highscores", {
+        const res = await fetch("/api/highscores", {
             method:"POST",
-            headers:{"Content-Type":"application/json"},
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization": "Bearer " + token
+            },
             body:JSON.stringify({playername, score, level})
         });
+
+        if(!res.ok){
+            const error = await res.json();
+            statusDisplay.textContent = error.error || "Failed to submit score!";
+            return;
+        }
 
         form.reset();
         loadScores();
@@ -96,10 +105,14 @@ form.addEventListener("submit", async (e)=>{
 async function deleteScore(id){
     statusDisplay.textContent = "Deleting..."
 
-    const res = await fetch(`/api/highscores/${id}`, {method:"DELETE"});
+    const res = await fetch(`/api/highscores/${id}`, {
+        method:"DELETE",
+        headers:{"Authorization": "Bearer " + token}
+    });
 
     if(!res.ok){
         statusDisplay.textContent = "Delete failed";
+        return;
     }
 
     statusDisplay.textContent = "Score Deleted";
