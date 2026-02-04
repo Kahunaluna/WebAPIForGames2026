@@ -74,8 +74,8 @@ form.addEventListener("submit", async (e)=>{
     e.preventDefault();
 
     const playername = document.getElementById("playername").value;
-    const score = parseInt(document.getElementById("score").value);
-    const level = parseInt(document.getElementById("level").value);
+    const score = document.getElementById("score").value;
+    const level = document.getElementById("level").value;
 
     statusDisplay.textContent = "Submitting new score...";
 
@@ -117,5 +117,11 @@ async function deleteScore(id){
 
     statusDisplay.textContent = "Score Deleted";
 }
+
+//Logout button handler
+document.getElementById("logoutBtn").addEventListener("click", ()=>{
+    localStorage.removeItem("token");
+    window.location.href = "/login.html";
+});
 
 loadScores();
