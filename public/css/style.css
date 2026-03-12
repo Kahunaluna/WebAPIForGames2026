@@ -1,7 +1,161 @@
-body{
-    background-color: red;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #1a1a2e;
+    color: #eee;
+    min-height: 100vh;
 }
 
-.bg{
-    background-color: bisque;
+nav {
+    background: #16213e;
+    padding: 1rem 2rem;
+    display: flex;
+    gap: 1.5rem;
+    border-bottom: 2px solid #0f3460;
+}
+
+nav a {
+    color: #e94560;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+
+nav a:hover { color: #fff; }
+
+main {
+    max-width: 960px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+h1 { margin-bottom: 1rem; color: #e94560; }
+h2 { margin-bottom: 0.5rem; }
+
+/* Cards */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.card {
+    background: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Buttons */
+.btn {
+    background: #e94560;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn:hover       { background: #c73652; }
+.btn-danger      { background: #555; }
+.btn-danger:hover{ background: #c0392b; }
+
+/* Forms */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"] {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    margin: 0.3rem 0 0.75rem;
+    border: 1px solid #0f3460;
+    border-radius: 5px;
+    background: #0f3460;
+    color: #eee;
+    font-size: 1rem;
+}
+
+label { font-size: 0.9rem; color: #aaa; }
+
+.form-container {
+    max-width: 420px;
+    margin: 0 auto;
+    background: #16213e;
+    padding: 2rem;
+    border-radius: 8px;
+    border: 1px solid #0f3460;
+}
+
+.form-container p { margin-top: 1rem; font-size: 0.9rem; }
+.form-container a { color: #e94560; }
+
+/* Table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #0f3460;
+}
+
+th { background: #0f3460; color: #e94560; }
+tr:hover { background: #16213e; }
+
+/* Player cards (edit page) */
+.player-card {
+    background: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.player-info { display: flex; flex-direction: column; gap: 0.2rem; }
+.player-info span { font-size: 0.85rem; color: #aaa; }
+.player-actions { display: flex; gap: 0.5rem; }
+
+/* Modal */
+#modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal-box {
+    background: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 10px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
 }

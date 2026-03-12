@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Edit Players</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/mostwins">Most Wins</a>
+        <a href="/edit">Edit Players</a>
+    </nav>
+    <main>
+        <h1>✏️ Edit Players</h1>
+        <p id="status">Loading players...</p>
+        <div id="playerList"></div>
+
+        <!-- Edit Modal -->
+        <div id="modal" style="display:none;">
+            <div class="modal-box">
+                <h2>Edit Player</h2>
+                <input type="hidden"  id="editId"/>
+                <label>Player Name</label>
+                <input type="text"   id="editPlayer"/>
+                <label>Score</label>
+                <input type="number" id="editScore"/>
+                <label>Wins</label>
+                <input type="number" id="editWins"/>
+                <label>Losses</label>
+                <input type="number" id="editLosses"/>
+                <label>Games Played</label>
+                <input type="number" id="editGamesPlayed"/>
+                <div class="modal-actions">
+                    <button class="btn" onclick="saveEdit()">Save</button>
+                    <button class="btn btn-danger" onclick="closeModal()">Cancel</button>
+                </div>
+                <p id="editMsg"></p>
+            </div>
+        </div>
+    </main>
+    <script src="/js/loadplayers.js"></script>
+</body>
+</html> 

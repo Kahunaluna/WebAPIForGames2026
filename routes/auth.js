@@ -1,69 +1,43 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
+const router = express.Router();
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-const router = express.Router();
-const JWT_Secret = process.env.JWT_SECRET;
-if(!JWT_Secret)throw new Error("JWT_SECRET is not defined in environment variables");
 
-//Register new users
-router.post("/register", async (req,res)=>{
-    console.log("Authentication Route")
-    try{
-        const {username, password} = req.body;
+// Register
+router.post("/register", async (req, res) => {
+    const { username, email, password } = req.body;
+    try {
+        const existing = await User.findOne({ email });
+        if (existing) return res.status(400).json({ error: "Email already in use" });
 
-        if(typeof username !== "string" || typeof password !== "string"){
-            return res.status(400).json({ok:false, error:"Invalid username or password"});
-        }
-
-        const existing = await User.findOne({username});
-        if(existing){
-            return res.status(400).json({ok:false, error:"Username already taken"});
-        }
-
-        const passwordHash = await bcrypt.hash(password, 10);
-
-        await User.create({username, password:passwordHash});
-
-        res.status(201).json({ok:true});
-        console.log(`${username}: ${passwordHash}`);
-    }catch(err){
-        console.log("Register Error:", err);
-        res.status(500).json({ok:false, error:"Failed to register user"});
+        const hashed = await bcrypt.hash(password, 10);
+        const user = await User.create({ username, email, password: hashed });
+        res.status(201).json({ ok: true, message: "User registered", userId: user._id });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
-//Login existing users
-router.post("/login", async (req,res)=>{
-    try{
-        const {username, password} = req.body;
+// Login
+router.post("/login", async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        const user = await User.findOne({ email });
+        if (!user) return res.status(400).json({ error: "Invalid credentials" });
 
-        const user = await User.findOne({username});
-        if(!user){
-            return res.status(401).json({ok:false, error:"Invalid username or password"});
-        }
-
-        const ok = await bcrypt.compare(password, user.password);
-        
-        if(!ok){
-            return res.status(401).json({ok:false, error:"Password does not match"});
-        }
+        const match = await bcrypt.compare(password, user.password);
+        if (!match) return res.status(400).json({ error: "Invalid credentials" });
 
         const token = jwt.sign(
-            {sub:user._id.toString(),
-             username:user.username},
-            JWT_Secret,
-            {expiresIn:"2h"}
+            { userId: user._id, username: user.username },
+            process.env.JWT_SECRET || "secret",
+            { expiresIn: "1h" }
         );
-
-        res.json({ok:true, token});
-
+        res.json({ ok: true, token, username: user.username });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
-    catch(err){
-        console.log("Login Error:", err);
-        res.status(500).json({ok:false, error:"Failed to login"});
-    }
-
 });
 
 module.exports = router;

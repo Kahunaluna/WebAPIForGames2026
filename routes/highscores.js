@@ -1,112 +1,75 @@
 const express = require("express");
+const router = express.Router();
 const HighScore = require("../models/HighScore");
 const requireAuth = require("../Middleware/requireAuth");
 
-const router = express.Router();
-
-//All routes below will require authentication
-router.use(requireAuth);
-
-//Post route for adding player scores
-router.post("/", async (req, res)=>{
-    try{
-
-        const userId = req.user.sub;
-        const {playername, score, level} = req.body;
-
-        const createdScore = await HighScore.create({userId, playername, score, level});
-
-        res.status(201).json({ok:true, createdScore});
-
-    }catch(err){
-        res.status(400).json({ok:false, error:"Invalid High Score"});
-    }
-});
-
-//Get route for requesting data from database
-router.get("/highscores", async (req, res)=>{
-    try{
-        const userId = req.user.sub;
-        const scores = await HighScore.find({userId})
-        .sort({score:-1, createdAt:1})
-        .limit(10);
-        res.json(scores);
-    }catch(err){
-        res.status(500).json({ok:false, error:"Failed to fetch High Scores"});
-    }
-});
-
-//Delete route(deletes by ID)
-router.delete("/:id", async (req,res)=>{
-    try{
-        const userId = req.user.sub;
-        const{id} = req.params;
-        const deleted = await HighScore.findOneAndDelete({_id: id, userId});
-
-        if(!deleted){
-            return res.status(404).json({ok:false, error:"Score not found!"})
-        }
-
-        res.json({ok:true, deletedId:id});
-
-    }catch(err){
-        res.status(400).json({ok:false, error:"Delete failed!"});
-    }
-});
-
-//get route for edit page
-router.get("/:id", async (req,res)=>{
+router.get("/", async (req, res) => {
     try {
-        const score = await HighScore.findById({_id: req.params.id, userId});
-
-        if(!score){
-            return res.status(404).json({ok:false, error:"Score not found"});
-        }
-        res.json(score);
-    } catch{
-        res.status(400).json({ok:false, error:"Invalid Score ID"});
+        const scores = await HighScore.find().sort({ score: -1 });
+        res.json(scores);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
-//next week need to add put route for editing scores
-
-router.put("/:id", async (req,res)=>{
-    try{
-        const userId = req.user.sub;
-        //Update highscore entry
-        const {id} = req.params;
-
-        //Only allow expected fields to be updated
-        const payload = {};
-        if(typeof req.body.playername === "string")
-        {
-            payload.playername = req.body.playername;
-        }
-
-        if(typeof req.body.score === "number")
-        {
-            payload.score = req.body.score;
-        }
-
-        if(typeof req.body.level === "number")
-        {
-            payload.level = req.body.level;
-        }
-
-        const updateEntry = await HighScore.findByIdAndUpdate({_id: id, userId}, payload, {
-            new:true, 
-            runValidators:true});
-
-            if(!updateEntry)
-            {
-                return res.status(404).json({ok:false, error:"Score Entry Not Found"});
-            }
-            res.json({ok:true, updateEntry});
-            //res.redirect("api/highscores");
+router.get("/top-wins", async (req, res) => {
+    try {
+        const topPlayers = await HighScore.find().sort({ wins: -1 }).limit(10);
+        res.json(topPlayers);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
-    catch(err)
-    {
-       res.status(400).json({ok:false, error:"Update Failed"});
+});
+
+router.get("/:id", async (req, res) => {
+    try {
+        const entry = await HighScore.findById(req.params.id);
+        if (!entry) return res.status(404).json({ error: "Player not found" });
+        res.json(entry);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.post("/", async (req, res) => {
+    const { player, score, wins, losses, gamesPlayed, game } = req.body;
+    if (!player) return res.status(400).json({ error: "Player name is required" });
+    try {
+        const entry = await HighScore.create({
+            player,
+            score:       score       ?? 0,
+            wins:        wins        ?? 0,
+            losses:      losses      ?? 0,
+            gamesPlayed: gamesPlayed ?? 1,
+            game:        game        ?? "Unity Game"
+        });
+        res.status(201).json({ ok: true, entry });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.put("/:id", async (req, res) => {
+    try {
+        const updated = await HighScore.findByIdAndUpdate(
+            req.params.id,
+            { ...req.body, updatedAt: new Date() },
+            { new: true, runValidators: true }
+        );
+        if (!updated) return res.status(404).json({ error: "Player not found" });
+        res.json({ ok: true, updated });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.delete("/:id", async (req, res) => {
+    try {
+        const deleted = await HighScore.findByIdAndDelete(req.params.id);
+        if (!deleted) return res.status(404).json({ error: "Player not found" });
+        res.json({ ok: true, message: "Player deleted" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 

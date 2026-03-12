@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player Leaderboard</title>
+    <title>Most Wins</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -13,23 +13,22 @@
         <a href="/edit">Edit Players</a>
     </nav>
     <main>
-        <h1>Player Leaderboard</h1>
-        <p id="status">Loading scores...</p>
-        <table id="scoreTable" style="display:none;">
+        <h1>Top 10 Most Wins</h1>
+        <p id="status">Loading top players...</p>
+        <table id="winsTable" style="display:none;">
             <thead>
                 <tr>
                     <th>Rank</th>
                     <th>Player</th>
-                    <th>Score</th>
                     <th>Wins</th>
                     <th>Losses</th>
                     <th>Games Played</th>
-                    <th>Game</th>
+                    <th>Score</th>
                 </tr>
             </thead>
-            <tbody id="scoreBody"></tbody>
+            <tbody id="winsBody"></tbody>
         </table>
     </main>
-    <script src="/js/loadscores.js"></script>
+    <script src="/js/loadmostwins.js"></script>
 </body>
 </html>

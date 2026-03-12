@@ -1,13 +1,14 @@
-const  mongoose = require("mongoose");
+const mongoose = require("mongoose");
 
-const highScoreSchema = new mongoose.Schema(
-    {
-        userId:{type:String},
-        playername:{type:String, required:true, maxlength:24},
-        score:{type:Number, required:true, min:0},
-        level:{type:Number, default:1, min:1}
-    },
-    {timestamps: true}
-);
+const highScoreSchema = new mongoose.Schema({
+    player:     { type: String, required: true },
+    score:      { type: Number, required: true, default: 0 },
+    wins:       { type: Number, default: 0 },
+    losses:     { type: Number, default: 0 },
+    gamesPlayed:{ type: Number, default: 0 },
+    game:       { type: String, default: "Unity Game" },
+    createdAt:  { type: Date, default: Date.now },
+    updatedAt:  { type: Date, default: Date.now }
+});
 
 module.exports = mongoose.model("HighScore", highScoreSchema);
